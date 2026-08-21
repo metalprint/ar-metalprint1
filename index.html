@@ -26,7 +26,7 @@
         background-color: transparent !important;
       }
 
-      /* Скрываем стандартный индикатор загрузки MindAR */
+      /* Скрываем стандартный кольцевой индикатор загрузки MindAR */
       .mindar-ui-loading { 
         display: none !important; 
       }
@@ -74,12 +74,11 @@
     </style>
   </head>
   <body>
-
-    <!-- Элементы интерфейса поверх AR -->
+    <!-- Квадратный логотип слева и кнопка звука справа -->
     <img id="brand-logo" src="./logo.jpg" alt="Metalprint Logo" onerror="this.style.display='none'" />
     <button id="sound-btn">🔊 Включить звук</button>
 
-    <!-- AR Сцена с фильтрами сглаживания Калмана (убирает дрожание) -->
+    <!-- AR Сцена с фильтрами сглаживания Калмана (убирает дрожание)[cite: 3] -->
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
       embedded
@@ -89,7 +88,7 @@
       device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <!-- Подгрузка видеофайла 720x1440 -->
+        <!-- Подгрузка видеофайла 720x1440[cite: 3] -->
         <video 
           id="ar-video" 
           src="./video.mp4" 
@@ -104,9 +103,9 @@
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <!-- Наложение видео с вашими исходными размерами -->
+      <!-- Наложение видео с пропорциями 1:2 под панель 30x60 см[cite: 3] -->
       <a-entity id="target-entity" mindar-image-target="targetIndex: 0">
-        <a-video src="#ar-video" width="1" height="1.5" position="0 0 0"></a-video>
+        <a-video src="#ar-video" width="1" height="2" position="0 0 0"></a-video>
       </a-entity>
     </a-scene>
 
@@ -117,7 +116,7 @@
         const targetEntity = document.querySelector("#target-entity");
         const sceneEl = document.querySelector("a-scene");
 
-        /* Прозрачный задний фон камеры */
+        // Фикс прозрачности фона камеры
         sceneEl.addEventListener("arReady", () => {
           const videoElements = document.querySelectorAll("video");
           videoElements.forEach((el) => {
@@ -133,7 +132,7 @@
           });
         });
 
-        /* Кнопка переключения звука */
+        // Управление звуком через кнопку справа
         soundBtn.addEventListener("click", () => {
           if (video.muted) {
             video.muted = false;
@@ -146,12 +145,14 @@
           }
         });
 
-        /* Автовоспроизведение при наведении */
+        // Автовоспроизведение при наведении на металлическую панель[cite: 3]
         targetEntity.addEventListener("targetFound", () => {
-          video.play().catch(error => console.log("Ошибка автовоспроизведения:", error));
+          video.play().catch(error => {
+            console.log("Ошибка автовоспроизведения:", error);
+          });
         });
 
-        /* Пауза при уходе камеры */
+        // Пауза при уходе камеры с картины[cite: 3]
         targetEntity.addEventListener("targetLost", () => {
           video.pause();
         });
